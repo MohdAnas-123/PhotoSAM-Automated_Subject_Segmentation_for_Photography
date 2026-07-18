@@ -24,9 +24,16 @@ numpy==1.26.4
 torch==2.5.1
 torchvision==0.20.1
 
-# ── SAM2 — installed directly from Meta's GitHub repository ───────────────────
-# The package is NOT on PyPI; this line handles the pip install in one step.
-sam2 @ git+https://github.com/facebookresearch/segment-anything-2.git
+# ── SAM2 — GPU / Colab / HF Spaces only ───────────────────────────────────────
+# SAM2 is NOT on PyPI and requires a git clone (~300 MB).
+# Only install this on a machine with a GPU (Google Colab, HF Spaces, etc.).
+# Local development uses mock mode — SAM2 is NOT required locally.
+#
+# To install on Colab / GPU machine:
+#   pip install 'sam2 @ git+https://github.com/facebookresearch/segment-anything-2.git'
+#
+# Uncomment the line below ONLY on GPU machines:
+# sam2 @ git+https://github.com/facebookresearch/segment-anything-2.git
 
 # ── Environment variables ──────────────────────────────────────────────────────
 python-dotenv==1.0.1

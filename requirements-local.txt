@@ -1,0 +1,38 @@
+# ── requirements-local.txt ─────────────────────────────────────────────────────
+# Install this on your LOCAL machine (Windows / Mac / Linux, no GPU needed).
+# SAM2 is intentionally excluded — the backend runs in mock mode locally.
+# Mock mode generates a synthetic ellipse mask so the full UI pipeline works.
+#
+# Install:
+#   pip install -r requirements-local.txt
+
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi
+uvicorn[standard]
+python-multipart
+
+# ── Frontend ───────────────────────────────────────────────────────────────────
+streamlit
+streamlit-image-coordinates
+
+# ── HTTP client ────────────────────────────────────────────────────────────────
+httpx
+requests
+
+# ── Computer vision ────────────────────────────────────────────────────────────
+opencv-python
+Pillow
+
+# ── Numerical computing ────────────────────────────────────────────────────────
+numpy
+
+# ── PyTorch CPU (needed for config.py torch.cuda.is_available() call) ─────────
+torch
+torchvision
+
+# ── Environment variables ──────────────────────────────────────────────────────
+python-dotenv
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+pytest
+pytest-asyncio
