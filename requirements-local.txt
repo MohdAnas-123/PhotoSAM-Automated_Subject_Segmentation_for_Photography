@@ -1,38 +1,30 @@
-# ── requirements-local.txt ─────────────────────────────────────────────────────
-# Install this on your LOCAL machine (Windows / Mac / Linux, no GPU needed).
-# SAM2 is intentionally excluded — the backend runs in mock mode locally.
-# Mock mode generates a synthetic ellipse mask so the full UI pipeline works.
-#
-# Install:
-#   pip install -r requirements-local.txt
-
-# ── Web framework ──────────────────────────────────────────────────────────────
+# Core API
 fastapi
 uvicorn[standard]
 python-multipart
 
-# ── Frontend ───────────────────────────────────────────────────────────────────
+# Frontend
 streamlit
 streamlit-image-coordinates
 
-# ── HTTP client ────────────────────────────────────────────────────────────────
+# HTTP
 httpx
 requests
 
-# ── Computer vision ────────────────────────────────────────────────────────────
+# Vision
 opencv-python
 Pillow
 
-# ── Numerical computing ────────────────────────────────────────────────────────
+# Numeric
 numpy
 
-# ── PyTorch CPU (needed for config.py torch.cuda.is_available() call) ─────────
+# PyTorch (CPU — for GPU swap to: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121)
 torch
 torchvision
 
-# ── Environment variables ──────────────────────────────────────────────────────
+# Env
 python-dotenv
 
-# ── Testing ────────────────────────────────────────────────────────────────────
+# Tests
 pytest
 pytest-asyncio

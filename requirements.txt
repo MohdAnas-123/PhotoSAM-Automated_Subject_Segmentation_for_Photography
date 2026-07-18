@@ -1,44 +1,34 @@
-# ── Web framework ──────────────────────────────────────────────────────────────
+# Core API
 fastapi==0.115.5
 uvicorn[standard]==0.32.1
-python-multipart==0.0.12      # required for FastAPI file uploads
+python-multipart==0.0.12
 
-# ── Frontend ───────────────────────────────────────────────────────────────────
+# Frontend
 streamlit==1.41.1
-streamlit-image-coordinates==0.4.1   # pixel-accurate click capture on images
+streamlit-image-coordinates==0.4.1
 
-# ── HTTP client (Streamlit → FastAPI) ─────────────────────────────────────────
+# HTTP
 httpx==0.28.1
 requests==2.32.3
 
-# ── Computer vision ────────────────────────────────────────────────────────────
+# Vision
 opencv-python==4.10.0.84
 Pillow==11.1.0
 
-# ── Numerical computing ────────────────────────────────────────────────────────
+# Numeric
 numpy==1.26.4
 
-# ── PyTorch (CPU build — swap for CUDA wheel on GPU machines) ─────────────────
-# GPU (CUDA 12.1):
-#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+# PyTorch CPU (GPU: pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121)
 torch==2.5.1
 torchvision==0.20.1
 
-# ── SAM2 — GPU / Colab / HF Spaces only ───────────────────────────────────────
-# SAM2 is NOT on PyPI and requires a git clone (~300 MB).
-# Only install this on a machine with a GPU (Google Colab, HF Spaces, etc.).
-# Local development uses mock mode — SAM2 is NOT required locally.
-#
-# To install on Colab / GPU machine:
-#   pip install 'sam2 @ git+https://github.com/facebookresearch/segment-anything-2.git'
-#
-# Uncomment the line below ONLY on GPU machines:
+# SAM2 — GPU / Colab / HF Spaces only (NOT required locally — mock mode handles local dev)
+# pip install 'sam2 @ git+https://github.com/facebookresearch/segment-anything-2.git'
 # sam2 @ git+https://github.com/facebookresearch/segment-anything-2.git
 
-# ── Environment variables ──────────────────────────────────────────────────────
+# Env
 python-dotenv==1.0.1
 
-# ── Testing ────────────────────────────────────────────────────────────────────
+# Tests
 pytest==8.3.4
 pytest-asyncio==0.24.0
-httpx==0.28.1    # also used for AsyncClient in tests
