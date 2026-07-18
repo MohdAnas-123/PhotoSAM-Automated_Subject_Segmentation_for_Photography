@@ -1,0 +1,37 @@
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.12      # required for FastAPI file uploads
+
+# ── Frontend ───────────────────────────────────────────────────────────────────
+streamlit==1.41.1
+streamlit-image-coordinates==0.4.1   # pixel-accurate click capture on images
+
+# ── HTTP client (Streamlit → FastAPI) ─────────────────────────────────────────
+httpx==0.28.1
+requests==2.32.3
+
+# ── Computer vision ────────────────────────────────────────────────────────────
+opencv-python==4.10.0.84
+Pillow==11.1.0
+
+# ── Numerical computing ────────────────────────────────────────────────────────
+numpy==1.26.4
+
+# ── PyTorch (CPU build — swap for CUDA wheel on GPU machines) ─────────────────
+# GPU (CUDA 12.1):
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+torch==2.5.1
+torchvision==0.20.1
+
+# ── SAM2 — installed directly from Meta's GitHub repository ───────────────────
+# The package is NOT on PyPI; this line handles the pip install in one step.
+sam2 @ git+https://github.com/facebookresearch/segment-anything-2.git
+
+# ── Environment variables ──────────────────────────────────────────────────────
+python-dotenv==1.0.1
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.28.1    # also used for AsyncClient in tests
