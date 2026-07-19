@@ -1,4 +1,4 @@
-# PhotoSAM ✂️
+# PhotoSAM
 
 > **Interactive AI subject segmentation** powered by [Meta SAM2](https://github.com/facebookresearch/segment-anything-2).  
 > Click any object in a photo — get a refined mask, an overlay, and a transparent PNG cutout in seconds.
@@ -7,11 +7,12 @@
 
 ## Demo
 
-| Original | Click | Mask | Overlay | Transparent PNG |
-|----------|-------|------|---------|-----------------|
-| ![](docs/screenshots/original.png) | 📍 Click | ![](docs/screenshots/mask.png) | ![](docs/screenshots/overlay.png) | ![](docs/screenshots/cutout.png) |
+**Input → Mask → Overlay → Transparent cutout** (single click on subject)
 
-> *(Screenshots will be added after first successful end-to-end run)*
+| Original | Binary Mask | Overlay | Cutout |
+|----------|-------------|---------|--------|
+| ![Hawk on branch](examples/input/joshua-j-cotten-gZONYdlBqh4-unsplash.jpg) | ![Binary mask](examples/output/photosam_mask%20(1).png) | ![Green overlay](examples/output/photosam_overlay%20(1).jpg) | ![Transparent cutout](examples/output/photosam_cutout%20(1).png) |
+| ![Dog in grass](examples/input/ralu-gal-G8cB8hY3yvU-unsplash.jpg) | ![Binary mask](examples/output/photosam_mask.png) | ![Green overlay](examples/output/photosam_overlay.jpg) | ![Transparent cutout](examples/output/photosam_cutout.png) |
 
 ---
 
@@ -19,13 +20,14 @@
 
 | Feature | Description |
 |---------|-------------|
-| 🖱️ **Interactive click** | Click any pixel to select the subject — no bounding box or brush needed |
-| 🧠 **SAM2 inference** | Meta's `sam2-hiera-tiny` — fast, accurate, CPU-capable |
-| 🔬 **Mask refinement** | Morphological open/close + Gaussian smoothing via OpenCV |
-| 🖼️ **Three outputs** | Binary mask · Colour overlay · Transparent PNG cutout |
-| ⬇️ **Download** | One-click download for each output |
-| 🌐 **REST API** | Clean FastAPI backend with Swagger docs at `/docs` |
-| 🔀 **Env-var backend** | Single `BACKEND_URL` var → switch local / Colab / HF instantly |
+| **Single-click segmentation** | Click any pixel to select the subject — no bounding box or brush needed |
+| **SAM2 inference** | Meta's `sam2-hiera-tiny` — fast, accurate, runs on CPU |
+| **Mask refinement** | Morphological open/close + flood-fill + Gaussian smoothing via OpenCV |
+| **Three outputs** | Binary mask · Colour overlay · Transparent PNG cutout |
+| **One-click download** | Download each output directly from the UI |
+| **REST API** | FastAPI backend with Swagger docs at `/docs` |
+| **Mock mode** | Full-pipeline testing without the SAM2 model — no GPU required locally |
+| **Env-var backend** | Single `BACKEND_URL` switches between local, Colab, and HF Spaces |
 
 ---
 
@@ -33,16 +35,16 @@
 
 ```
 ┌─────────────────────┐         HTTP (multipart)         ┌─────────────────────┐
-│  Streamlit Frontend │  ──────────────────────────────▶  │   FastAPI Backend   │
-│      app.py         │  ◀──────────────────────────────  │  backend/main.py    │
+│  Streamlit Frontend │  ─────────────────────────────▶  │   FastAPI Backend   │
+│      app.py         │  ◀─────────────────────────────  │  backend/main.py    │
 └─────────────────────┘          JSON response            └──────────┬──────────┘
                                                                      │
-                                              ┌──────────────────────┼──────────────────────┐
-                                              ▼                      ▼                      ▼
-                                       preprocess.py          inference.py           postprocess.py
-                                       • Validate             • SAM2 predictor       • Morphology
-                                       • BGR→RGB              • Point prompt         • Overlay
-                                       • Resize               • Best mask            • Alpha PNG
+                                          ┌──────────────────────────┼──────────────────────┐
+                                          ▼                          ▼                      ▼
+                                   preprocess.py            inference.py           postprocess.py
+                                   • Validate               • SAM2 predictor       • Morphology
+                                   • BGR→RGB                • Point prompt         • Overlay
+                                   • Resize                 • Best mask            • Alpha PNG
 ```
 
 ---
@@ -53,9 +55,9 @@
 PhotoSAM/
 ├── app.py                  ← Streamlit frontend
 ├── download_model.py       ← Downloads SAM2 checkpoint
-├── requirements.txt
-├── .env.example            ← Copy to .env and set BACKEND_URL
-├── README.md
+├── requirements.txt        ← Full deps (GPU / Colab)
+├── requirements-local.txt  ← Local deps, no SAM2 git install
+├── .env.example
 │
 ├── backend/
 │   ├── main.py             ← FastAPI app factory + lifespan
@@ -94,14 +96,17 @@ cd PhotoSAM
 
 ### 2 — Install dependencies
 
+**Local development** (no GPU needed — runs in mock mode):
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-local.txt
 ```
 
-> **GPU users**: Replace the CPU PyTorch lines in `requirements.txt` with:
-> ```bash
-> pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
-> ```
+**GPU machine** (Colab, cloud VM):
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+pip install -r requirements-local.txt
+pip install 'sam2 @ git+https://github.com/facebookresearch/segment-anything-2.git'
+```
 
 ### 3 — Download the SAM2 checkpoint
 
@@ -109,7 +114,8 @@ pip install -r requirements.txt
 python download_model.py
 ```
 
-Downloads `sam2_hiera_tiny.pt` (~38 MB) into `models/`.
+Downloads `sam2_hiera_tiny.pt` (~38 MB) into `models/`.  
+Skip this step for local mock-mode development.
 
 ### 4 — Start the backend
 
@@ -122,7 +128,6 @@ Swagger UI → [http://localhost:8000/docs](http://localhost:8000/docs)
 ### 5 — Start the frontend
 
 ```bash
-# In a new terminal
 streamlit run app.py
 ```
 
@@ -132,20 +137,14 @@ Open [http://localhost:8501](http://localhost:8501) in your browser.
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and set your backend URL:
+Copy `.env.example` to `.env`:
 
 ```env
-# Local
 BACKEND_URL=http://localhost:8000
 
-# Google Colab (Phase 2)
-# BACKEND_URL=https://xxxx.ngrok-free.app
-
-# Hugging Face Spaces (Phase 3)
-# BACKEND_URL=https://your-username-photosam.hf.space
+# BACKEND_URL=https://xxxx.ngrok-free.app     # Colab
+# BACKEND_URL=https://your-username-photosam.hf.space  # HF Spaces
 ```
-
-Other optional overrides:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -180,14 +179,14 @@ Other optional overrides:
 
 ```json
 {
-  "mask":            "<base64 PNG>",
-  "overlay":         "<base64 JPEG>",
-  "transparent_png": "<base64 PNG>",
-  "inference_time":  0.87,
-  "total_time":      0.95,
-  "mask_area":       32.6,
+  "mask":             "<base64 PNG>",
+  "overlay":          "<base64 JPEG>",
+  "transparent_png":  "<base64 PNG>",
+  "inference_time":   0.87,
+  "total_time":       0.95,
+  "mask_area":        32.6,
   "confidence_score": 0.9821,
-  "image_size":      [480, 640]
+  "image_size":       [480, 640]
 }
 ```
 
@@ -233,20 +232,18 @@ JSON Response
 pytest tests/ -v
 ```
 
-Tests run **without** the SAM2 model — the inference engine automatically
-activates mock mode when the checkpoint is missing (e.g. in CI).
+Tests run without the SAM2 model — the inference engine activates mock mode automatically when the checkpoint is missing.
 
 ---
 
-## Development Workflow (Phase 2 — Colab + ngrok)
+## Colab (GPU Inference)
 
-For GPU inference without a local GPU:
+To run real SAM2 inference without a local GPU:
 
-1. Open the Colab notebook in `notebooks/colab_backend.ipynb`
-2. Run all cells — installs SAM2, downloads checkpoint, starts FastAPI, creates ngrok tunnel
-3. Copy the printed ngrok URL
-4. Set `BACKEND_URL=https://xxxx.ngrok-free.app` in your local `.env`
-5. Run `streamlit run app.py` locally — it now talks to the Colab GPU
+1. Open a new Colab notebook
+2. Install SAM2, download the checkpoint, start FastAPI with uvicorn, expose via ngrok
+3. Copy the ngrok URL into your local `.env` as `BACKEND_URL`
+4. Run `streamlit run app.py` locally — it now talks to the Colab GPU
 
 ---
 
@@ -258,18 +255,7 @@ For GPU inference without a local GPU:
 | `sam2-hiera-small` | 46M | ~2–4s | Better |
 | `sam2-hiera-large` | 224M | ~10s+ | Best |
 
-`sam2-hiera-tiny` was chosen for CPU viability and Hugging Face ZeroGPU compatibility.
-
----
-
-## Resume Highlights
-
-- **Interactive AI tool** — not a static demo; real click-based segmentation
-- **Production-grade REST API** — FastAPI with Swagger docs, async I/O, proper error handling
-- **Full OpenCV pipeline** — morphological refinement, anti-aliasing, alpha compositing
-- **Graceful degradation** — mock mode enables full-pipeline testing without the model
-- **Environment-driven config** — one env var to switch backends; zero code changes
-- **Documented, tested, structured** — engineering best practices throughout
+`sam2-hiera-tiny` was chosen for CPU viability and low memory footprint.
 
 ---
 
